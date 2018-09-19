@@ -1,0 +1,532 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7E752FF9-9715-4B23-B583-E0FE1B105ACD}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SZDS_TIMECARD</RootNamespace>
+    <AssemblyName>SZDS_TIMECARD</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>DLP.ICO</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GrapeCity.Framework.MultiRow.v21, Version=2.1.2010.303, Culture=neutral, PublicKeyToken=fdd90f5c44b73170" />
+    <Reference Include="GrapeCity.Win.MultiRow.v60, Version=6.0.2010.518, Culture=neutral, PublicKeyToken=0f7a722ee3c2bdd9, processorArchitecture=MSIL" />
+    <Reference Include="Leadtools, Version=16.5.0.0, Culture=neutral, PublicKeyToken=9cf889f53ea9b907, processorArchitecture=x86" />
+    <Reference Include="Leadtools.Codecs, Version=16.5.0.0, Culture=neutral, PublicKeyToken=9cf889f53ea9b907, processorArchitecture=x86" />
+    <Reference Include="Leadtools.Codecs.Tif, Version=16.5.0.0, Culture=neutral, PublicKeyToken=9cf889f53ea9b907, processorArchitecture=x86" />
+    <Reference Include="Leadtools.WinForms, Version=16.5.0.0, Culture=neutral, PublicKeyToken=9cf889f53ea9b907, processorArchitecture=x86" />
+    <Reference Include="LINQtoCSV, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqToCsv.1.5.0.0\lib\net35\LINQtoCSV.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Office, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\Access.cs" />
+    <Compile Include="Common\clsKeyTab.cs" />
+    <Compile Include="Common\clsLinqCsv.cs" />
+    <Compile Include="Common\dbControl.cs" />
+    <Compile Include="Common\frmComSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\frmComSelect.designer.cs">
+      <DependentUpon>frmComSelect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\frmPrg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\frmPrg.designer.cs">
+      <DependentUpon>frmPrg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\global.cs" />
+    <Compile Include="Common\mdbControl.cs" />
+    <Compile Include="Common\OCRData.cs" />
+    <Compile Include="Common\OCROutput.cs" />
+    <Compile Include="Common\sqlControl.cs" />
+    <Compile Include="Common\Utility.cs" />
+    <Compile Include="Common\xlsData.cs" />
+    <Compile Include="Common\OCROutputPast.cs" />
+    <Compile Include="config\frmKitakugoWork.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="config\frmKitakugoWork.Designer.cs">
+      <DependentUpon>frmKitakugoWork.cs</DependentUpon>
+    </Compile>
+    <Compile Include="config\frmCalendar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="config\frmCalendar.designer.cs">
+      <DependentUpon>frmCalendar.cs</DependentUpon>
+    </Compile>
+    <Compile Include="config\frmCalenderBatch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="config\frmCalenderBatch.designer.cs">
+      <DependentUpon>frmCalenderBatch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="config\tmpKitakugo.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="config\tmpKitakugo.Designer.cs">
+      <DependentUpon>tmpKitakugo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataGridViewEX.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataSet1.cs">
+      <DependentUpon>DataSet1.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DataSet1.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\clsJiyu.cs" />
+    <Compile Include="OCR\FormRecog.cs" />
+    <Compile Include="OCR\frmCorrect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmCorrect.dataShow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmCorrect.designer.cs">
+      <DependentUpon>frmCorrect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmNumUpdate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmNumUpdate.Designer.cs">
+      <DependentUpon>frmNumUpdate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmOCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOCR.designer.cs">
+      <DependentUpon>frmOCR.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmOCRIndex.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOCRIndex.designer.cs">
+      <DependentUpon>frmOCRIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrect.dataShow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrect.Designer.cs">
+      <DependentUpon>frmOuenCorrect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmUnSubmit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmUnSubmit.designer.cs">
+      <DependentUpon>frmUnSubmit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\Template3.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OCR\Template3.Designer.cs">
+      <DependentUpon>Template3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\Template4.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OCR\Template4.Designer.cs">
+      <DependentUpon>Template4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\Template5.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OCR\Template5.Designer.cs">
+      <DependentUpon>Template5.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\Template6.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="OCR\Template6.Designer.cs">
+      <DependentUpon>Template6.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmOuenIndex.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOuenIndex.designer.cs">
+      <DependentUpon>frmOuenIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmCorrectPast.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmCorrectPast.designer.cs">
+      <DependentUpon>frmCorrectPast.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmCorrectPast.dataShow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrectPast.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrectPast.Designer.cs">
+      <DependentUpon>frmOuenCorrectPast.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OCR\frmOuenCorrectPast.dataShow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="prePrint\prePrint.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="prePrint\prePrint.designer.cs">
+      <DependentUpon>prePrint.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="sumData\clsZanSum.cs" />
+    <Compile Include="sumData\frmFuriDataSum.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmFuriDataSum.Designer.cs">
+      <DependentUpon>frmFuriDataSum.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmKintaiRepNew.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmKintaiRepNew.Designer.cs">
+      <DependentUpon>frmKintaiRepNew.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmSumZanList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmSumZanList.Designer.cs">
+      <DependentUpon>frmSumZanList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls.Designer.cs">
+      <DependentUpon>frmZanChartXls.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmPastDatatoCsv.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmPastDatatoCsv.Designer.cs">
+      <DependentUpon>frmPastDatatoCsv.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmSumZanList_New.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmSumZanList_New.Designer.cs">
+      <DependentUpon>frmSumZanList_New.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls_New.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls_New.Designer.cs">
+      <DependentUpon>frmZanChartXls_New.cs</DependentUpon>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls_New201804.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="sumData\frmZanChartXls_New201804.Designer.cs">
+      <DependentUpon>frmZanChartXls_New201804.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Template1.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Template1.Designer.cs">
+      <DependentUpon>Template1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Template2.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Template2.Designer.cs">
+      <DependentUpon>Template2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TemplateKitaku.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TemplateKitaku.Designer.cs">
+      <DependentUpon>TemplateKitaku.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TempZan.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TempZan.Designer.cs">
+      <DependentUpon>TempZan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TempZan2.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TempZan2.Designer.cs">
+      <DependentUpon>TempZan2.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Common\frmComSelect.resx">
+      <DependentUpon>frmComSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Common\frmPrg.resx">
+      <DependentUpon>frmPrg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="config\frmCalendar.resx">
+      <DependentUpon>frmCalendar.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="config\frmCalenderBatch.resx">
+      <DependentUpon>frmCalenderBatch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="config\frmKitakugoWork.resx">
+      <DependentUpon>frmKitakugoWork.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="config\tmpKitakugo.resx">
+      <DependentUpon>tmpKitakugo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmCorrect.resx">
+      <DependentUpon>frmCorrect.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmNumUpdate.resx">
+      <DependentUpon>frmNumUpdate.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmOCR.resx">
+      <DependentUpon>frmOCR.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmOCRIndex.resx">
+      <DependentUpon>frmOCRIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmOuenCorrect.resx">
+      <DependentUpon>frmOuenCorrect.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmUnSubmit.resx">
+      <DependentUpon>frmUnSubmit.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\Template3.resx">
+      <DependentUpon>Template3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\Template4.resx">
+      <DependentUpon>Template4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\Template5.resx">
+      <DependentUpon>Template5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\Template6.resx">
+      <DependentUpon>Template6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmOuenIndex.resx">
+      <DependentUpon>frmOuenIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmCorrectPast.resx">
+      <DependentUpon>frmCorrectPast.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OCR\frmOuenCorrectPast.resx">
+      <DependentUpon>frmOuenCorrectPast.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="prePrint\prePrint.resx">
+      <DependentUpon>prePrint.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="sumData\frmFuriDataSum.resx">
+      <DependentUpon>frmFuriDataSum.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmKintaiRepNew.resx">
+      <DependentUpon>frmKintaiRepNew.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmSumZanList.resx">
+      <DependentUpon>frmSumZanList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmZanChartXls.resx">
+      <DependentUpon>frmZanChartXls.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmPastDatatoCsv.resx">
+      <DependentUpon>frmPastDatatoCsv.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmSumZanList_New.resx">
+      <DependentUpon>frmSumZanList_New.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmZanChartXls_New.resx">
+      <DependentUpon>frmZanChartXls_New.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="sumData\frmZanChartXls_New201804.resx">
+      <DependentUpon>frmZanChartXls_New201804.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Template1.resx">
+      <DependentUpon>Template1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Template2.resx">
+      <DependentUpon>Template2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TemplateKitaku.resx">
+      <DependentUpon>TemplateKitaku.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TempZan.resx">
+      <DependentUpon>TempZan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TempZan2.resx">
+      <DependentUpon>TempZan2.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="DataSet1.xsc">
+      <DependentUpon>DataSet1.xsd</DependentUpon>
+    </None>
+    <None Include="DataSet1.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>DataSet1.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataSet1.xss">
+      <DependentUpon>DataSet1.xsd</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DLP.ICO" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="ADODB">
+      <Guid>{2A75196C-D9EB-4129-B803-931327F72D5C}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="JRO">
+      <Guid>{AC3B8B4C-B6CA-11D1-9F31-00C04FC29D52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>6</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
