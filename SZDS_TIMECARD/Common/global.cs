@@ -190,8 +190,10 @@ namespace SZDS_TIMECARD
         public static int SFT_FURIKAESHUKKIN = 43;      // 振替出勤 // 2018/02/03
         public static int SFT_DOTOKKYU = 40;            // 事由・土曜特休 2017/11/10
         public static int SFT_TSUJYOKEKKIN = 10;        // 事由・通常欠勤 2017/11/21
+        public static int JIYU_KYUGYOKEKKIN = 11;       // 事由・休業欠勤 2018/10/30
         public static int JIYU_HANKETSU_AM = 17;        // 事由・前半欠勤 2018/02/13
         public static int JIYU_HANKETSU_PM = 18;        // 事由・後半欠勤 2018/02/13
+        public static int JIYU_KYUGYOCHISOU = 20;       // 事由・休業遅早 2018/10/30
 
         // 部門
         public static string BMN_ALL = "全社";

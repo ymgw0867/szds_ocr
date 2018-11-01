@@ -47,6 +47,7 @@ namespace SZDS_TIMECARD.sumData
         const string JIYU_YUUKOUZENHAN = "8";
         const string JIYU_YUUKOUKOUHAN = "9";
         const string JIYU_KEKKIN = "10";
+        const string JIYU_KYUGYOKEKKIN = "11";  // 休業欠勤：2018/10/31
         const string JIYU_DAIKYU = "12";
         const string JIYU_FURIKYU = "13";
         const string JIYU_YOBIDASHI = "30";
@@ -67,6 +68,7 @@ namespace SZDS_TIMECARD.sumData
         double nenkyuuDays = 0;
         double tsumikyuuDays = 0;       // 積休 2017/10/04
         double kekkinDays = 0;
+        double kyugyokekkinDays = 0;    // 休業欠勤 2018/10/31
         double workTime = 0;
         double zanTime = 0;
         double shinyaTime = 0;
@@ -78,6 +80,9 @@ namespace SZDS_TIMECARD.sumData
         double chisouKai = 0;           // 遅刻早退回数 2017/09/22
         double chisouTime = 0;          // 遅刻早退時間 2017/09/22
         double chisouTimeKyuGyo = 0;    // 休業遅刻早退時間 2017/09/23
+        double yakanHendou_1 = 0;       // 夜間変動１ 2018/10/31
+        double yakanHendou_2 = 0;       // 夜間変動２ 2018/10/31
+        double kotei = 0;               // 固定 2018/10/31
 
         // カラム定義
         private string ColChk = "c0";
@@ -92,6 +97,9 @@ namespace SZDS_TIMECARD.sumData
 
         // 奉行から出力した年休・積休残データ配列
         string[] nenkyuArray = null;
+
+        // 固定・勤務体系コード配列 2018/10/31
+        string[] koteiArray = null;
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -128,6 +136,9 @@ namespace SZDS_TIMECARD.sumData
             linkLblOff.Enabled = false;
 
             comboBox1.SelectedIndex = 0;
+
+            // 固定・勤務体系コードCSVファイルインポート : 2018/10/31
+            importKoteiData(@"C:\SZDS_OCR\XLS\固定勤務体系.csv");
         }
 
         ///-------------------------------------------------------------
@@ -937,6 +948,8 @@ namespace SZDS_TIMECARD.sumData
 
             Excel.Range rng = null;
             object[,] rtnArray = null;
+            string[] redAddress = null;
+            int redX = 0;
 
             //当月用勤怠表シート
 
@@ -1093,6 +1106,21 @@ namespace SZDS_TIMECARD.sumData
                                     oxlsSheet.Cells[xR + 4, 38] = shinyaTime.ToString("##0.0");     // 深夜残業
                                     oxlsSheet.Cells[xR + 4, 36] = tsumikyuuDays.ToString("##0.0");  // 積休使用数
                                     //oxlsSheet.Cells[xR + 4, 40] = koukiTime.ToString("##0.0");      // 工機夜時間 : 2017/09/23
+                                    oxlsSheet.Cells[xR + 4, 40] = yakanHendou_1.ToString("##0.0");  // 夜間変動１時間 : 2018/10/31
+
+                                    // 休業欠勤、休業遅早は文字色赤表示：2018/11/01
+                                    if (redAddress != null)
+                                    {
+                                        for (int iR = 0; iR < redAddress.Length; iR++)
+                                        {
+                                            string[] ad = redAddress[iR].Split(',');
+
+                                            if (ad.Length > 1)
+                                            {
+                                                oxlsSheet.Cells[Utility.StrtoInt(ad[0]), Utility.StrtoInt(ad[1])].Font.Color = Color.Red;
+                                            }
+                                        }
+                                    }
 
                                     iX++;   // 行カウンタ加算
                                 }
@@ -1130,6 +1158,10 @@ namespace SZDS_TIMECARD.sumData
 
                                     // 行カウンタ初期化
                                     iX = 0;
+
+                                    // 赤表示アドレス配列初期化 : 2018/11/01
+                                    redAddress = null;
+                                    redX = 0;
                                 }
 
                                 // 合計欄初期化
@@ -1163,6 +1195,18 @@ namespace SZDS_TIMECARD.sumData
                             string sftCode = t[3].Replace("\"", "");
                             sftCode = sftCode.Trim().PadLeft(3, '0');
 
+                            // 固定・回数カウント：2018/10/31
+                            if (Utility.StrtoInt(sftCode) != global.flgOff)
+                            {
+                                for (int x = 0; x < koteiArray.Length; x++)
+                                {
+                                    if (Utility.StrtoInt(sftCode) == Utility.StrtoInt(koteiArray[x]))
+                                    {
+                                        kotei++;
+                                    }
+                                }
+                            }
+
                             // 呼出回数：事由[30]カウント 2018/05/30
                             if (Utility.StrtoInt(t[5].Replace("\"", "")).ToString() == JIYU_YOBIDASHI ||
                                      Utility.StrtoInt(t[7].Replace("\"", "")).ToString() == JIYU_YOBIDASHI ||
@@ -1181,6 +1225,7 @@ namespace SZDS_TIMECARD.sumData
                                 kyushutsuDays++;    //　日数カウント : 2017/10/05  2018/09/18 有効化
                                 rtnArray[1, iDt.Day] = "休出";    // 2017/09/22
                             }
+
                             //else if (sftCode == SHIFT_HEIKITAKUGO)　// 2018/05/28 コメント化
                             //{
                             //    // 平日帰宅後回数カウント
@@ -1203,7 +1248,17 @@ namespace SZDS_TIMECARD.sumData
                                 
                                 // 事由から出勤欄の記号を求める
                                 int jSt = 0;
-                                rtnArray[1, iDt.Day] = getShukkinKigou(jArray, ref jSt);    // 2017/09/22
+                                bool kyugyo = false;    // 2018/10/31
+                                rtnArray[1, iDt.Day] = getShukkinKigou(jArray, ref jSt, ref kyugyo);    // 2017/09/22
+
+                                // 2018/10/31
+                                if (kyugyo)
+                                {
+                                    // 該当セルアドレスを記憶
+                                    redX++;
+                                    Array.Resize(ref redAddress, redX);
+                                    redAddress[redX - 1] = xR + "," + (iDt.Day + 3);
+                                }
 
                                 // 事由なしのとき）
                                 if (jSt == 0)
@@ -1213,14 +1268,20 @@ namespace SZDS_TIMECARD.sumData
                                 }
                             }
 
+                            //--------------------------------------------------------------
+                            //  パート社員のとき出勤時間を取得する　：2018/10/31 コメント化
+                            //--------------------------------------------------------------
+                            //if (kKbn == KBN_PART || kKbn == KBN_PART_2 || kKbn == KBN_PART_3)
+                            //{
+                            //    double wt = Utility.StrtoDouble(t[15].Replace("\"", ""));
+                            //    workTime += wt;     // 加算
+                            //}
+
                             //--------------------------------------------------------
-                            //  パート社員のとき出勤時間を取得する
+                            //  出勤時間を加算する：2018/10/31
                             //--------------------------------------------------------
-                            if (kKbn == KBN_PART || kKbn == KBN_PART_2 || kKbn == KBN_PART_3)
-                            {
-                                double wt = Utility.StrtoDouble(t[15].Replace("\"", ""));
-                                workTime += wt;     // 加算
-                            }
+                            double wt = Utility.StrtoDouble(t[15].Replace("\"", ""));
+                            workTime += wt;     // 加算
 
                             //--------------------------------------------------------------
                             //  普通残業時間を取得・加算 : 2018/02/05 同日残業時間は加算
@@ -1263,7 +1324,16 @@ namespace SZDS_TIMECARD.sumData
                             chisouTime += Utility.StrtoDouble(t[24].Replace("\"", "")) + Utility.StrtoDouble(t[27].Replace("\"", ""));
 
                             // 休業遅早時間
-                            chisouTimeKyuGyo += Utility.StrtoDouble(t[48].Replace("\"", "")); 
+                            chisouTimeKyuGyo += Utility.StrtoDouble(t[48].Replace("\"", ""));
+
+                            // 休業遅早を赤表示：2018/11/01
+                            if (Utility.StrtoDouble(t[48].Replace("\"", "")) > 0)
+                            {  
+                                // 該当セルアドレスを記憶
+                                redX++;
+                                Array.Resize(ref redAddress, redX);
+                                redAddress[redX - 1] = (xR + 3) + "," + (iDt.Day + 3);
+                            }
 
                             //-------------------------------------------------------------------
                             //  休日残業時間を取得・加算 : 2018/02/05 同日休日残業時間は加算
@@ -1289,6 +1359,18 @@ namespace SZDS_TIMECARD.sumData
                                 kyusuhtsuShinyaTime += dSZan; 
                             }
 
+                            //--------------------------------------------------------
+                            //  夜間変動１時間を加算する：2018/10/31
+                            //--------------------------------------------------------
+                            double yh1 = Utility.StrtoDouble(t[18].Replace("\"", ""));
+                            yakanHendou_1 += yh1;     // 加算
+
+                            //--------------------------------------------------------
+                            //  夜間変動２時間を加算する：2018/10/31
+                            //--------------------------------------------------------
+                            double yh2 = Utility.StrtoDouble(t[21].Replace("\"", ""));
+                            yakanHendou_2 += yh2;     // 加算
+
                             sBushoNum = bCode;
                             sShainNum = t[0].Replace("\"", "");
                         }
@@ -1305,7 +1387,21 @@ namespace SZDS_TIMECARD.sumData
                     oxlsSheet.Cells[xR + 4, 38] = shinyaTime.ToString("##0.0");     // 深夜残業 : 2017/10/04
                     oxlsSheet.Cells[xR + 4, 36] = tsumikyuuDays.ToString("##0.0");  // 積休使用数：2017/10/04
                     //oxlsSheet.Cells[xR + 4, 40] = shinyaTime.ToString("##0.0");     // 工機夜時間 : 2017/09/23
+                    oxlsSheet.Cells[xR + 4, 40] = yakanHendou_1.ToString("##0.0");  // 夜間変動１時間 : 2018/10/31
 
+                    // 休業欠勤、休業遅早は文字色赤表示：2018/11/01
+                    if (redAddress != null)
+                    {
+                        for (int iR = 0; iR < redAddress.Length; iR++)
+                        {
+                            string[] ad = redAddress[iR].Split(',');
+
+                            if (ad.Length > 1)
+                            {
+                                oxlsSheet.Cells[Utility.StrtoInt(ad[0]), Utility.StrtoInt(ad[1])].Font.Color = Color.Red;
+                            }
+                        }
+                    }
                     // 1枚目はテンプレートシートなので印刷時には削除する
                     oXls.DisplayAlerts = false;
                     oXlsBook.Sheets[1].Delete();
@@ -1666,7 +1762,8 @@ namespace SZDS_TIMECARD.sumData
 
                                 // 事由から出勤欄の記号を求める
                                 int jSt = 0;
-                                rtnArray[1, iDt.Day] = getShukkinKigou(jArray, ref jSt);    // 2017/09/22
+                                bool kg = false;
+                                rtnArray[1, iDt.Day] = getShukkinKigou(jArray, ref jSt, ref kg);    // 2017/09/22
 
                                 // 事由なしのとき）
                                 if (jSt == 0)
@@ -2047,7 +2144,8 @@ namespace SZDS_TIMECARD.sumData
 
                         // 事由から出勤欄の記号を求める
                         int jSt = 0;
-                        rtnArray[1, t.過去勤務票ヘッダRow.日] = getShukkinKigou(jArray, ref jSt);
+                        bool kg = false;
+                        rtnArray[1, t.過去勤務票ヘッダRow.日] = getShukkinKigou(jArray, ref jSt, ref kg);
 
                         // 出勤のとき
                         if (jSt == 0)
@@ -2332,13 +2430,16 @@ namespace SZDS_TIMECARD.sumData
             rtnArray[4, 33] = nenkyuuDays.ToString("#0.0");
             //rtnArray[5, 33] = tsumikyuuDays.ToString("#0.0");       // 積休使用数 2017/10/04
 
-            rtnArray[1, 35] = kekkinDays.ToString();
+            rtnArray[1, 35] = kekkinDays.ToString();            // 欠勤日
+            rtnArray[2, 35] = kyugyokekkinDays.ToString();      // 休業欠勤日 2018/10/31
 
-            if (kbn == KBN_PART || kbn == KBN_PART_2 || kbn == KBN_PART_3)
-            {
-                rtnArray[3, 35] = workTime.ToString("##0.0");
-            }
+            // 以下、コメント化 2018/10/31
+            //if (kbn == KBN_PART || kbn == KBN_PART_2 || kbn == KBN_PART_3)
+            //{
+            //    rtnArray[3, 35] = workTime.ToString("##0.0");
+            //}
 
+            rtnArray[3, 35] = workTime.ToString("##0.0");   // 出勤時間 2018/10/31
             rtnArray[4, 35] = zanTime.ToString("##0.0");
             //rtnArray[5, 35] = shinyaTime.ToString("##0.0");
 
@@ -2348,6 +2449,9 @@ namespace SZDS_TIMECARD.sumData
             rtnArray[4, 37] = chisouTimeKyuGyo.ToString("##0.0"); // 2017/09/27
 
             //rtnArray[1, 39] = kumitateTime.ToString("##0.0"); // 2017/09/23
+
+            rtnArray[1, 39] = yakanHendou_2.ToString("##0.0");  // 夜間変動２ 2018/10/31
+            rtnArray[2, 39] = kotei;                            // 固定 2018/10/31
             rtnArray[4, 39] = yobidashi;
         }
 
@@ -2364,6 +2468,7 @@ namespace SZDS_TIMECARD.sumData
             nenkyuuDays = 0;
             tsumikyuuDays = 0;  // 2017/10/04
             kekkinDays = 0;
+            kyugyokekkinDays = 0;   // 2018/10/31
             workTime = 0;
             zanTime = 0;
             shinyaTime = 0;
@@ -2376,6 +2481,10 @@ namespace SZDS_TIMECARD.sumData
             chisouKai = 0;      // 2017/09/23
             chisouTime = 0;     // 2017/09/23
             chisouTimeKyuGyo = 0;     // 2017/09/23
+
+            yakanHendou_1 = 0;  // 2018/10/31
+            yakanHendou_2 = 0;  // 2018/10/31
+            kotei = 0;          // 2018/10/31
         }
 
 
@@ -2478,7 +2587,7 @@ namespace SZDS_TIMECARD.sumData
                             // 出勤時間を求める
                             datetimeAdjust(ref sTime, ref eTime, ref restSTime, ref restETime);
                             wt = workTimePart(sTime, eTime, restSTime, restETime);
-                            workTime += wt;     // 出勤時間に加算
+                            //workTime += wt;     // 出勤時間に加算  2018/10/31 コメント化
                             shukkinDays++;      // 出勤日数に加算
                             return wt.ToString("##0.0");
                         }
@@ -2497,7 +2606,7 @@ namespace SZDS_TIMECARD.sumData
                     // シフトコードから求める
                     getSftTime(sdCon, t.過去勤務票ヘッダRow.シフトコード.ToString(), t.シフトコード, ref sTime, ref eTime, ref restSTime, ref restETime);
                     wt = workTimePart(sTime, eTime, restSTime, restETime);
-                    workTime += wt;     // 出勤時間に加算
+                    //workTime += wt;     // 出勤時間に加算　2018/10/31 コメント化
                     shukkinDays++;      // 出勤日数に加算
                     return wt.ToString("##0.0");
                 }
@@ -2576,14 +2685,18 @@ namespace SZDS_TIMECARD.sumData
         ///     事由配列</param>
         /// <param name="jSt">
         ///     該当ステータス</param>
+        /// <param name="kyugyo">
+        ///     休業欠勤スタータス</param>
         /// <returns>
         ///     出勤記号</returns>
         ///-------------------------------------------------------------------------
-        private string getShukkinKigou(string[] jArray, ref int jSt)
+        private string getShukkinKigou(string[] jArray, ref int jSt, ref bool kyugyo)
         {
             string rtn = string.Empty;
             string kk = string.Empty;
             int m = 0;
+
+            kyugyo = false;     // 2018/10/31
 
             for (int i = 0; i < jArray.Length; i++)
             {
@@ -2701,6 +2814,14 @@ namespace SZDS_TIMECARD.sumData
                             toShukkin = 0;  // 当日出勤日数を０にする 2017/11/22
                             break;
 
+                        case JIYU_KYUGYOKEKKIN: // 休業欠勤：2018/10/31
+                            rtn = "欠勤";
+                            jSt = 1;
+                            kyugyokekkinDays++;
+                            toShukkin = 0;  // 当日出勤日数を０にする 2018/10/31
+                            kyugyo = true;  // 休業ステータス
+                            break;
+
                         case JIYU_DAIKYU:
                             rtn = "代休";
                             jSt = 1;
@@ -2736,7 +2857,8 @@ namespace SZDS_TIMECARD.sumData
                             break;
 
                         case JIYU_YOBIDASHI:   // 呼出は出勤にカウントしない 2018/07/04
-                            rtn = "";
+                            //rtn = "";  // 2018/11/01 コメント化
+                            rtn = "◯";  // 出勤記号が必要 2018/11/01
                             jSt = 2;
                             //kekkinDays += 0.5;
                             //shukkinDays += 0.5;
@@ -3384,6 +3506,22 @@ namespace SZDS_TIMECARD.sumData
                 fileName = string.Empty;
             }
         }
+
+        ///------------------------------------------------------------
+        /// <summary>
+        ///     固定・該当勤務体系コードCSV読み込み、配列作成 </summary>
+        ///------------------------------------------------------------
+        private void importKoteiData(string sFile)
+        {
+            // 勤怠データ配列読み込み
+            workArray = System.IO.File.ReadAllLines(sFile, Encoding.Default);
+
+            foreach (var item in workArray)
+            {
+                koteiArray = item.Split(',');
+            }
+        }
+
 
         private void impWorkData(string files)
         {

@@ -1240,13 +1240,15 @@ namespace SZDS_TIMECARD.Common
                 }
 
                 // 雇用区分「１０」派遣社員が使用可能な事由は「１０：通常欠勤」のみとする 2017/11/21
+                // 「１１：休業欠勤」も対象とする 2018/10/30
                 if (kKbn == KOYOU_HAKEN)
                 {
                     for (int i = 0; i < mJiyu.Length; i++)
                     {
-                        if (mJiyu[i] != string.Empty && mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString())
+                        if (mJiyu[i] != string.Empty && mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString())
                         {
-                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」以外は記入できません");
+                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」以外は記入できません");
                             return false;
                         }
                     }
@@ -1419,6 +1421,7 @@ namespace SZDS_TIMECARD.Common
                         return false;
                     }
                 }
+                
 
                 //// 変更シフトコード
                 //if (m.シフト通り == string.Empty && m.シフトコード == string.Empty)
@@ -1503,6 +1506,43 @@ namespace SZDS_TIMECARD.Common
                 {
                     setErrStatus(eZanH1, iX - 1, "残業時間が未記入です");
                     return false;
+                }
+
+
+                // 休業遅早チェック：2018/10/31
+                if (mJiyu[0] == global.JIYU_KYUGYOCHISOU.ToString() ||
+                    mJiyu[1] == global.JIYU_KYUGYOCHISOU.ToString() ||
+                    mJiyu[2] == global.JIYU_KYUGYOCHISOU.ToString())
+                {
+                    string sftCode = string.Empty;
+
+                    if (m.シフト通り == global.FLGOFF)
+                    {
+                        if (m.シフトコード != string.Empty)
+                        {
+                            // 変更シフトコードあり
+                            sftCode = m.シフトコード;
+                        }
+                        else
+                        {
+                            // 標準シフトコード
+                            sftCode = r.シフトコード.ToString();
+                        }
+                    }
+                    else
+                    {
+                        // 標準シフトコード
+                        sftCode = r.シフトコード.ToString();
+                    }
+                    
+                    sftCode = sftCode.PadLeft(4, '0');
+
+                    // 休業遅早チェック
+                    if (!isGreaterSftStartTime(sftCode, m.出勤時, m.出勤分, m.退勤時, m.退勤分))
+                    {
+                        setErrStatus(eSH, iX - 1, "休業遅早で出勤退勤時刻が正しくありません");
+                        return false;
+                    }
                 }
 
                 // 部署別残業理由Excelシート登録チェック
@@ -1599,6 +1639,117 @@ namespace SZDS_TIMECARD.Common
             return true;
         }
 
+        ///----------------------------------------------------------------------------------
+        /// <summary>
+        ///     記入開始終了時刻が対象のシフトコードで遅刻早退に該当するか調べる </summary>
+        /// <param name="sftCode">
+        ///     シフトコード </param>
+        /// <param name="sh">
+        ///     記入開始時刻・時</param>
+        /// <param name="sm">
+        ///     記入開始時刻・分</param>
+        /// <param name="eh">
+        ///     記入終了時刻・時</param>
+        /// <param name="em">
+        ///     記入終了時刻・分</param>
+        ///----------------------------------------------------------------------------------
+        private bool isGreaterSftStartTime(string sftCode, string sh, string sm, string eh, string em)
+        {
+            bool rtn = false;
+
+            string sG = Utility.NulltoStr(sh) + Utility.NulltoStr(sm);
+
+            // 出勤時間空白は対象外とする
+            if (sh != string.Empty && sm != string.Empty && eh != string.Empty && em != string.Empty)
+            {
+                DateTime sDt = DateTime.Now;
+                DateTime eDt = DateTime.Now;
+                DateTime cDt = DateTime.Now;
+
+                // 有効なシフトコードが存在するとき
+                if (sftCode != string.Empty)
+                {
+                    // 奉行SQLServer接続文字列取得
+                    string sc = sqlControl.obcConnectSting.get(_dbName);
+                    sqlControl.DataControl sdCon = new sqlControl.DataControl(sc);
+
+                    // 勤務体系（シフト）コード情報取得
+                    StringBuilder sb = new StringBuilder();
+                    sb.Clear();
+                    sb.Append("SELECT tbLaborSystem.LaborSystemID,tbLaborSystem.LaborSystemCode,");
+                    sb.Append("tbLaborSystem.LaborSystemName,tbLaborTimeSpanRule.StartTime,");
+                    sb.Append("tbLaborTimeSpanRule.EndTime, tbLaborSystem.DayChangeTime ");
+                    sb.Append("FROM tbLaborSystem inner join tbLaborTimeSpanRule ");
+                    sb.Append("on tbLaborSystem.LaborSystemID = tbLaborTimeSpanRule.LaborSystemID ");
+                    sb.Append("where tbLaborTimeSpanRule.LaborTimeSpanRuleType = 1 ");
+                    sb.Append("and tbLaborSystem.LaborSystemCode = '").Append(sftCode).Append("'");
+
+                    SqlDataReader dR = sdCon.free_dsReader(sb.ToString());
+
+                    bool bn = false;
+
+                    while (dR.Read())
+                    {
+                        bn = true;
+                        sDt = DateTime.Parse(dR["StartTime"].ToString());       // 開始時刻
+                        eDt = DateTime.Parse(dR["EndTime"].ToString());         // 終了時刻
+                        cDt = DateTime.Parse(dR["DayChangeTime"].ToString());   // 日替時刻
+                        break;
+                    }
+
+                    dR.Close();
+                    sdCon.Close();
+
+                    int sS = sDt.Hour * 100 + sDt.Minute;   // 開始時刻
+                    int eS = eDt.Hour * 100 + eDt.Minute;   // 終了時刻
+                    int cS = cDt.Hour * 100 + cDt.Minute;   // 日替時刻
+
+                    // 日跨ぎ時間帯のとき
+                    if (sS > eS)
+                    {
+                        eS += 2400;
+                    }
+
+
+                    // 開始時刻
+                    int sK = Utility.StrtoInt(Utility.NulltoStr(sh)) * 100 + Utility.StrtoInt(Utility.NulltoStr(sm));
+
+                    // 終了時刻
+                    int sE = Utility.StrtoInt(Utility.NulltoStr(eh)) * 100 + Utility.StrtoInt(Utility.NulltoStr(em));
+
+                    // 記入時刻が日替時刻より小さいときは翌日とみなす
+                    if (sK < cS)
+                    {
+                        // 記入開始時刻
+                        sK += 2400;
+                    }
+
+                    if (sE < cS)
+                    {
+                        // 記入終了時刻
+                        sE += 2400;
+                    }
+
+                    if (!bn)
+                    {
+                        rtn = false;
+                    }
+                    else if (sS < sK || sE < eS)
+                    {
+                        // 遅刻もしくは早退とみなされるとき
+                        rtn = true;
+                    }
+                    else
+                    {
+                        rtn = false;
+                    }
+                }
+            }
+
+            return rtn;
+        }
+
+        
         ///-----------------------------------------------------------------------------------------------
         /// <summary>
         ///     項目別エラーチェック。
