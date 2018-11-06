@@ -2151,7 +2151,23 @@ namespace SZDS_TIMECARD.Common
                         }
                     }
                 }
-                
+
+                // 雇用区分「１０」派遣社員が使用可能な事由は「１０：通常欠勤」のみとする 2017/11/21
+                // 「１１：休業欠勤」も対象とする 2018/10/30
+                if (kKbn == KOYOU_HAKEN)
+                {
+                    for (int i = 0; i < mJiyu.Length; i++)
+                    {
+                        if (mJiyu[i] != string.Empty && mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString())
+                        {
+                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」以外は記入できません");
+                            return false;
+                        }
+                    }
+                }
+
+
                 // 勤務体系（シフト）コード奉行登録チェック
                 if (m.シフトコード != string.Empty)
                 {
@@ -2216,6 +2232,43 @@ namespace SZDS_TIMECARD.Common
                 {
                     setErrStatus(eZanH1, iX - 1, "残業時間が未記入です");
                     return false;
+                }
+
+
+                // 休業遅早チェック：2018/10/31
+                if (mJiyu[0] == global.JIYU_KYUGYOCHISOU.ToString() ||
+                    mJiyu[1] == global.JIYU_KYUGYOCHISOU.ToString() ||
+                    mJiyu[2] == global.JIYU_KYUGYOCHISOU.ToString())
+                {
+                    string sftCode = string.Empty;
+
+                    if (m.シフト通り == global.FLGOFF)
+                    {
+                        if (m.シフトコード != string.Empty)
+                        {
+                            // 変更シフトコードあり
+                            sftCode = m.シフトコード;
+                        }
+                        else
+                        {
+                            // 標準シフトコード
+                            sftCode = r.シフトコード.ToString();
+                        }
+                    }
+                    else
+                    {
+                        // 標準シフトコード
+                        sftCode = r.シフトコード.ToString();
+                    }
+
+                    sftCode = sftCode.PadLeft(4, '0');
+
+                    // 休業遅早チェック
+                    if (!isGreaterSftStartTime(sftCode, m.出勤時, m.出勤分, m.退勤時, m.退勤分))
+                    {
+                        setErrStatus(eSH, iX - 1, "休業遅早で出勤退勤時刻が正しくありません");
+                        return false;
+                    }
                 }
 
                 // 部署別残業理由Excelシート登録チェック
