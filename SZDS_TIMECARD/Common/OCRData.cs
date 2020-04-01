@@ -1241,14 +1241,17 @@ namespace SZDS_TIMECARD.Common
 
                 // 雇用区分「１０」派遣社員が使用可能な事由は「１０：通常欠勤」のみとする 2017/11/21
                 // 「１１：休業欠勤」も対象とする 2018/10/30
+                // 「２０：遅刻早退」も対象とする 2020/04/01
                 if (kKbn == KOYOU_HAKEN)
                 {
                     for (int i = 0; i < mJiyu.Length; i++)
                     {
-                        if (mJiyu[i] != string.Empty && mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
-                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString())
+                        if (mJiyu[i] != string.Empty && 
+                            mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOCHISOU.ToString())
                         {
-                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」以外は記入できません");
+                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」「20:休業遅早」以外は記入できません");
                             return false;
                         }
                     }
@@ -2154,14 +2157,17 @@ namespace SZDS_TIMECARD.Common
 
                 // 雇用区分「１０」派遣社員が使用可能な事由は「１０：通常欠勤」のみとする 2017/11/21
                 // 「１１：休業欠勤」も対象とする 2018/10/30
+                // 「２０：遅刻早退」も対象とする 2020/04/01
                 if (kKbn == KOYOU_HAKEN)
                 {
                     for (int i = 0; i < mJiyu.Length; i++)
                     {
-                        if (mJiyu[i] != string.Empty && mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
-                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString())
+                        if (mJiyu[i] != string.Empty && 
+                            mJiyu[i] != global.SFT_TSUJYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOKEKKIN.ToString() &&
+                            mJiyu[i] != global.JIYU_KYUGYOCHISOU.ToString())
                         {
-                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」以外は記入できません");
+                            setErrStatus(Utility.StrtoInt(eJiyu[i]), iX - 1, "派遣社員は「10：通常欠勤」「11：休業欠勤」「20：休業遅早」以外は記入できません");
                             return false;
                         }
                     }
